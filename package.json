@@ -14,8 +14,11 @@
   },
   "main": "index.js",
   "dependencies": {
+    "axios": "^0.19.2",
+    "bootstrap": "^4.4.1",
     "core-js": "^3.6.4",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-underscore": "^0.1.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",

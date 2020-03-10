@@ -1,28 +1,23 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header logoName="githubäpp." />
+    <Search />
+
+    <!--<Bookmark msg="Tere" />-->
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './bundles/header/headerComponent.vue'
+import Search from './bundles/search/searchComponent.vue'
+//import Bookmark from './bundles/bookmark/bookmarkComponent.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Header,
+    Search,
+    //Bookmark
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
