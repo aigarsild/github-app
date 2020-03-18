@@ -1,6 +1,7 @@
 <template>
 
-  <section class="search-section container-fluid min-vh-100 flex-wrap d-flex align-content-center">
+  <section class="search-section container-fluid min-vh-100 flex-wrap d-flex align-content-center" :style="bookmarkTxt">
+
     <div class="container">
       <h1 class="display-3 text-center w-100">Search for a Github repo.</h1>
       <p class="lead text-center w-100">Search results are fetched trough Github API</p>
@@ -23,9 +24,11 @@
               <p class="card-text">Forks: <strong>{{ result.forks }}</strong></p>
               <a target="_blank" :href="result.html_url" class="btn btn-primary w-100 ">Go to repo page</a>
 
-              <p class="btn btn-dark mt-3 w-100" v-on:click="bookmarkBtnAction(result.bookmarkStatus, result.id)" :data-bookmark-id="result.id">
-                <span v-if="!result.bookmarkStatus">Add bookmark <font-awesome-icon class="bookmarks-star-empty" icon="star" /></span>
-                <span v-if="result.bookmarkStatus">Remove bookmark <font-awesome-icon class="bookmarks-star" icon="star" /></span>
+              <p class="bookmark-btn btn btn-dark mt-3 w-100"
+                 :class="{ add_to_bookmark: !result.bookmarkStatus }"
+                 v-on:click="bookmarkBtnAction"
+                 :data-bookmark-status="result.bookmarkStatus"
+                 :data-bookmark-id="result.id" >
               </p>
 
             </div>
@@ -56,11 +59,31 @@
         requestUrl: 'https://api.github.com/search/repositories?sort=stars&q=',
         noSearchResults: false,
         checkForId: [],
-        localStorageKey: 'bookmarkIds'
+        localStorageKey: 'bookmarkIds',
+
+        bookmarkTxt: String,
+        bookmarkData: {
+          bookmarkAddTxt: 'Add bookmark',
+          bookmarkAddedTxt: 'Bookmarked',
+          bookmarkRemoveTxt: 'Remove bookmark',
+          bookmarkToggleClass: 'add_to_bookmark'
+        }
       }
     },
 
+    created: function () {
+      this.setBookmarkTxts();
+    },
+
     methods: {
+      setBookmarkTxts: function() {
+        this.bookmarkTxt =
+                `--add-bookmark-txt: '${this.bookmarkData.bookmarkAddTxt}';
+                --remove-bookmark-txt: '${this.bookmarkData.bookmarkRemoveTxt}';
+                --added-bookmark-txt: '${this.bookmarkData.bookmarkAddedTxt}';
+                `;
+      },
+
       getSearchResults: function(searchValue) {
         this.searchValue = searchValue.target.value;
         this.setParams();
@@ -109,22 +132,37 @@
         return searchResults;
       },
 
-      bookmarkBtnAction: function(bookmarkStatus, bookmarkId) {
+      bookmarkBtnAction: function(element) {
+        const bookmarkStatus = element.target.dataset.bookmarkStatus;
+        const bookmarkId = element.target.dataset.bookmarkId;
 
-        if (bookmarkStatus) {
+        this.toggleClass(element, this.bookmarkData.bookmarkToggleClass);
+
+        if (bookmarkStatus === 'true') {
+          element.target.dataset.bookmarkStatus = false;
           this.removeBookmark(bookmarkId);
          return;
         }
 
+        element.target.dataset.bookmarkStatus = true;
         this.addToBookmark(bookmarkId);
+      },
+
+      toggleClass: function(element, toggleClass) {
+        const button = element.target;
+        button.classList.toggle(toggleClass);
+      },
+
+      retrieveBookmarks: function() {
+        return JSON.parse(localStorage.getItem(this.localStorageKey));
       },
 
       addToBookmark: function(elementId) {
         if (localStorage.getItem(this.localStorageKey)) {
-          const retrievedData = JSON.parse(localStorage.getItem(this.localStorageKey));
+          const retrievedData = this.retrieveBookmarks();
 
           //Check if id is already stored
-          this.checkForId = retrievedData.filter(id => elementId !== id ? true : this.itemAlreadyAddedToBookmarks());
+          this.checkForId = this.filterOutExistingId(retrievedData, elementId);
           this.pushItemToBookmark(this.checkForId, elementId);
 
           return;
@@ -133,21 +171,24 @@
         this.pushItemToBookmark(this.checkForId, elementId);
       },
 
-      removeBookmark: function(bookmarkId) {
-        console.log('removeeee' + bookmarkId);
+      filterOutExistingId: function(array, elementId) {
+        return array.filter(existingId => elementId !== existingId);
+      },
+
+      removeBookmark: function(elementId) {
+
+        const retrievedData = this.retrieveBookmarks();
+        this.checkForId = this.filterOutExistingId(retrievedData, elementId);
+
+        this.pushItemToBookmark(this.checkForId, false);
       },
 
       pushItemToBookmark: function(array, id) {
-        if (!id) {
-          return;
+        if (id) {
+          array.push(id);
         }
 
-        array.push(id);
         localStorage.setItem(this.localStorageKey, JSON.stringify(array));
-      },
-
-      itemAlreadyAddedToBookmarks: function() {
-        return false;
       }
 
     },
@@ -175,18 +216,40 @@
     outline: none;
     }
 
-    .add-to-bookmarks, .remove-from-bookmarks {
-      color: gold;
+    .bookmark-btn.btn {
+      background-color: #ffb200;
+      border: none;
     }
 
-    .bookmarks-star path {
-      fill: gold;
+    .bookmark-btn.btn:hover {
+      background-color: #e19600;
+      border: none;
     }
 
-    .bookmarks-star-empty path {
-      stroke: gold;
-      fill: none;
-      stroke-width: 60px;
+    .bookmark-btn.btn:hover::after {
+      content: var(--remove-bookmark-txt);
+
+      border: none;
+    }
+
+    .bookmark-btn::after {
+      content: var(--added-bookmark-txt);
+    }
+
+    .bookmark-btn.add_to_bookmark {
+      background-color: #343a40;
+    }
+
+    .bookmark-btn.add_to_bookmark:hover {
+      background-color: #23272b;
+    }
+
+    .bookmark-btn.add_to_bookmark::after {
+      content: var(--add-bookmark-txt);
+    }
+
+    .bookmark-btn.add_to_bookmark:hover::after {
+      content: var(--add-bookmark-txt);
     }
 
 </style>
