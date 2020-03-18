@@ -44,6 +44,7 @@
 <script>
   import axios from 'axios';
   import {_} from 'vue-underscore';
+  import { eventBus } from '../../main'
 
   export default {
     name: 'Search',
@@ -124,12 +125,20 @@
 
       checkForBookmarks: function(searchResults) {
         const retrievedBookmarkData = JSON.parse(localStorage.getItem(this.localStorageKey));
-        //Parse bookmark ids to int
-        const parsedBookmarkData = retrievedBookmarkData.map(id => parseInt(id, 10));
 
+        if (!retrievedBookmarkData) {
+          return searchResults;
+        }
+
+        //Parse bookmark ids to int
+        let parsedBookmarkData = retrievedBookmarkData.map(id => parseInt(id, 10));
         //If fetched search results contain bookmarked id then add new property bookmarkStatus to results
         searchResults.filter(element => (parsedBookmarkData.includes(element.id) ? element.bookmarkStatus = true : element.bookmarkStatus = false));
         return searchResults;
+      },
+
+      triggerBookmarkUpdate: function() {
+        eventBus.$emit('bookmarkUpdated');
       },
 
       bookmarkBtnAction: function(element) {
@@ -141,11 +150,14 @@
         if (bookmarkStatus === 'true') {
           element.target.dataset.bookmarkStatus = false;
           this.removeBookmark(bookmarkId);
+          this.triggerBookmarkUpdate();
+
          return;
         }
 
         element.target.dataset.bookmarkStatus = true;
         this.addToBookmark(bookmarkId);
+        this.triggerBookmarkUpdate();
       },
 
       toggleClass: function(element, toggleClass) {
