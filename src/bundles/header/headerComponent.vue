@@ -5,10 +5,10 @@
                 <nav class="col">
                     <ul class="nav justify-content-end">
                         <li class="nav-item">
-                            <a class="nav-link">Search</a>
+                            <router-link class="nav-link" to="/">Search</router-link>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link">Bookmarks <span v-if="bookmarkBadgeNr" class="badge badge-warning">{{ bookmarkBadgeNr }}</span></a>
+                            <router-link class="nav-link" to="/bookmarks">Bookmarks <span v-if="bookmarkBadgeNr" class="badge badge-warning">{{ bookmarkBadgeNr }}</span></router-link>
                         </li>
                     </ul>
                 </nav>
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-    import { eventBus } from '../../main'
+    import { eventBus } from '../../main';
 
     export default {
         name: 'Header',
@@ -34,18 +34,17 @@
 
         created: function () {
             this.getBookmarkCount();
-
             eventBus.$on('bookmarkUpdated', () => this.getBookmarkCount());
-
         },
 
         methods: {
             getBookmarkCount: function () {
-                if (!localStorage.getItem(this.localStorageKey)) {
+                const bookmarks = localStorage.getItem(this.localStorageKey);
+                if (!bookmarks) {
                     return
                 }
 
-                this.bookmarkBadgeNr =  JSON.parse(localStorage.getItem(this.localStorageKey)).length;
+                this.bookmarkBadgeNr =  JSON.parse(bookmarks).length;
             }
         }
     }

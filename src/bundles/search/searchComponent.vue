@@ -10,7 +10,9 @@
         <div class="spinner-border" role="status" v-if="loading">
           <span class="sr-only">Loading...</span>
         </div>
-        <p v-if="noSearchResults">No results found :((</p>
+        <div v-if="noSearchResults" class="alert alert-danger mt-4" role="alert">
+          No results found :((
+        </div>
       </section>
 
       <section class="search-results row" v-if="searchResults">
