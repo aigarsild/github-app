@@ -4,7 +4,7 @@
 Bookmark application that fetches repositories from Github API and lets you save repositories into the application.
 The project is built on vue.js javascript framework and uses Bootstrap style components.
 
-[The demo is live here](https://aigar-github-app.netlify.com/bookmarks)
+[The demo is live here](https://aigar-github-app.netlify.com/)
 
 This is my first experiment with Vue.js. 
 Here some pros and cons
